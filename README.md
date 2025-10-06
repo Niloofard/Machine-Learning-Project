@@ -1,4 +1,3 @@
-# (Paste the updated content, then Ctrl+O, Enter, Ctrl+X)
 # 🧠 Hybrid Mamba–Transformer Architecture for Breast Cancer Classification
 
 ### Authors
