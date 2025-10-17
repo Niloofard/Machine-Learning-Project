@@ -34,13 +34,14 @@ The architecture aims to balance **local feature extraction** and **global repre
 - Collected in 2018 from 600 female patients aged between 25 and 75 years  
 - Contains 780 ultrasound images with an average resolution of 500×500 pixels in PNG format  
 - Images are labeled into three diagnostic classes: Normal, Benign, and Malignant
-  
-  | **Case**      | **Number of Images** |
+
+| **Case**      | **Number of Images** |
 |----------------|----------------------|
 | Benign         | 487                  |
 | Malignant      | 210                  |
 | Normal         | 133                  |
 | **Total**      | **780**              |
+
 
 
   
