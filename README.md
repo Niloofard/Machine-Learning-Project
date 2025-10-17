@@ -31,5 +31,7 @@ The architecture aims to balance **local feature extraction** and **global repre
 ---
 
 ## 🧠 Dataset:
+- Collected in 2018 from 600 female patients aged between 25 and 75 years  
+- Contains 780 ultrasound images with an average resolution of 500×500 pixels in PNG format  
 
 ## 📂 Repository Structure
