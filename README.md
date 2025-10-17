@@ -1,4 +1,4 @@
-# 🧠 Hybrid Mamba–Transformer Architecture for Breast Cancer Classification
+#  Hybrid Mamba–Transformer Architecture for Breast Cancer Classification
 
 ### Authors
 **Niloofar Dehghani**, **Omid Nejatimanzari**, **Mohammad Naserisafavi**, **Seyed MohammadHosein Enjavimadar**, **Sajad Ahmadian Fini**  
@@ -30,6 +30,6 @@ The architecture aims to balance **local feature extraction** and **global repre
 
 ---
 
-##🧠 Dataset:
+## 🧠 Dataset:
 
 ## 📂 Repository Structure
