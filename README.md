@@ -45,19 +45,21 @@ Link to dataset: https://www.kaggle.com/datasets/anasmohammedtahir/breast-ultras
 | Normal         | 133                  |
 | **Total**      | **780**              |
 
+---
+
 ## 🧮 Exploratory Data Analysis (EDA)
 
 A detailed EDA was conducted to understand the structure, balance, and quality of the BUSI dataset before model training. The analysis included:
 
-Class distribution: Verified the number of images in each category (benign, malignant, normal) using Seaborn bar plots to identify class imbalance.
+- Class distribution: Verified the number of images in each category (benign, malignant, normal) using Seaborn bar plots to identify class imbalance.
 
-Sample visualization: Displayed representative ultrasound images from each class to confirm labeling accuracy and image quality.
+- Sample visualization: Displayed representative ultrasound images from each class to confirm labeling accuracy and image quality.
 
-Image resolution consistency: Checked width and height distributions (in pixels) to ensure uniform image size.
+- Image resolution consistency: Checked width and height distributions (in pixels) to ensure uniform image size.
 
-Brightness analysis: Calculated mean pixel intensity for all samples to evaluate exposure and illumination uniformity across classes.
+- Brightness analysis: Calculated mean pixel intensity for all samples to evaluate exposure and illumination uniformity across classes.
 
-Data integrity: Detected and excluded corrupted or non-image files.
+- Data integrity: Detected and excluded corrupted or non-image files.
 
 All EDA steps were implemented in EDA.ipynb using Python libraries (Pillow, OpenCV, Matplotlib, Seaborn, NumPy, Pandas).
 Results confirmed that the dataset is grayscale, properly exposed, and ready for standardized preprocessing and augmentation.
