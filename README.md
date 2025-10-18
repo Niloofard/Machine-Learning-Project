@@ -51,7 +51,7 @@ Link to dataset: https://www.kaggle.com/datasets/anasmohammedtahir/breast-ultras
 
 A detailed EDA was conducted to understand the structure, balance, and quality of the BUSI dataset before model training. The analysis included:
 
-- Class distribution: Verified the number of images in each category (benign, malignant, normal) using Seaborn bar plots to identify class imbalance.
+- Class distribution: Verified the number of images in each category (benign, malignant, normal) after excluding segmentation mask files, confirming a moderate class imbalance.
 
 - Sample visualization: Displayed representative ultrasound images from each class to confirm labeling accuracy and image quality.
 
