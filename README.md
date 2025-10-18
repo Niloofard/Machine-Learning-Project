@@ -40,7 +40,7 @@ Link to dataset: https://www.kaggle.com/datasets/anasmohammedtahir/breast-ultras
 
 | **Case**      | **Number of Images** |
 |----------------|----------------------|
-| Benign         | 487                  |
+| Benign         | 437                  |
 | Malignant      | 210                  |
 | Normal         | 133                  |
 | **Total**      | **780**              |
