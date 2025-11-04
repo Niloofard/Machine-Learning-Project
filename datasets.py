@@ -179,6 +179,6 @@ class FetalDatasetDownloader:
             self.download_dataset()
             self.extract_dataset()
             self.organize_images()
-            return self.organized_images_dir
+            return self.organized_images_di
 
 
