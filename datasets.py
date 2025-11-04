@@ -195,4 +195,50 @@ class ISICDatasetManager:
         # Ensure base directory exists
         os.makedirs(self.base_dir, exist_ok=True)
 
+     def organize_by_labels(self, metadata_path, image_dir, output_base_dir):
+        metadata = pd.read_csv(metadata_path)
+        labels = ['MEL', 'NV', 'BCC', 'AKIEC', 'BKL', 'DF', 'VASC']
+        for label in labels:
+            os.makedirs(os.path.join(output_base_dir, label), exist_ok=True)
+
+        def move_image(row):
+            image_name = f"{row['image']}.jpg"
+            source_path = os.path.join(image_dir, image_name)
+            for label in labels:
+                if row[label] == 1.0:
+                    target_path = os.path.join(output_base_dir, label, image_name)
+                    shutil.move(source_path, target_path)
+                    break
+        metadata.apply(move_image, axis=1)
+
+    def setup_dataset(self):
+        
+        # Organize training and test images
+        train_categorized = os.path.join(self.train_path, 'Categorized')
+        test_categorized = os.path.join(self.test_path, 'Categorized')
+        
+        if os.path.exists(train_categorized):
+            print("Dataset already exists. Returning the root directory.")
+            return train_categorized, test_categorized
+        else:
+            # Download and extract training and test datasets
+            self.download_and_extract(self.train_url, self.train_path)
+            self.download_and_extract(self.test_url, self.test_path)
+            self.download_and_extract(self.train_gt_url, self.train_path)
+            self.download_and_extract(self.test_gt_url, self.test_path)
+
+            
+            self.organize_by_labels(
+                os.path.join(self.train_path, 'ISIC2018_Task3_Training_GroundTruth/ISIC2018_Task3_Training_GroundTruth.csv'),
+                os.path.join(self.train_path, 'ISIC2018_Task3_Training_Input'),
+                train_categorized
+            )
+            self.organize_by_labels(
+                os.path.join(self.test_path, 'ISIC2018_Task3_Test_GroundTruth/ISIC2018_Task3_Test_GroundTruth.csv'),
+                os.path.join(self.test_path, 'ISIC2018_Task3_Test_Input'),
+                test_categorized
+            )
+
+            return train_categorized, test_categorized
+       
 
