@@ -239,8 +239,8 @@ class ISICDatasetManager:
                 test_categorized
             )
 
-            return train_categorized, test_categorized
-
+            return train_categorized, test_categorized 
+        
 
 class CPNDatasetDownloader:
     def __init__(self, root_dir='data',
