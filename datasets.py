@@ -182,3 +182,17 @@ class FetalDatasetDownloader:
             return self.organized_images_dir
 
 
+class ISICDatasetManager:
+    def __init__(self, base_dir='data'):
+        self.base_dir = base_dir
+        self.train_url = 'https://isic-challenge-data.s3.amazonaws.com/2018/ISIC2018_Task3_Training_Input.zip'
+        self.test_url = 'https://isic-challenge-data.s3.amazonaws.com/2018/ISIC2018_Task3_Test_Input.zip'
+        self.train_gt_url = 'https://isic-challenge-data.s3.amazonaws.com/2018/ISIC2018_Task3_Training_GroundTruth.zip'
+        self.test_gt_url = 'https://isic-challenge-data.s3.amazonaws.com/2018/ISIC2018_Task3_Test_GroundTruth.zip'
+        self.train_path = os.path.join(self.base_dir, 'ISIC2018_Train')
+        self.test_path = os.path.join(self.base_dir, 'ISIC2018_Test')
+
+        # Ensure base directory exists
+        os.makedirs(self.base_dir, exist_ok=True)
+
+
