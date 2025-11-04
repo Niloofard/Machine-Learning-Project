@@ -240,5 +240,53 @@ class ISICDatasetManager:
             )
 
             return train_categorized, test_categorized
-       
 
+
+class CPNDatasetDownloader:
+    def __init__(self, root_dir='data',
+                 dataset_url='https://prod-dcd-datasets-cache-zipfiles.s3.eu-west-1.amazonaws.com/dvntn9yhd2-1.zip'):
+        self.root_dir = root_dir
+        self.dataset_url = dataset_url
+        self.dataset_zip_path = os.path.join(self.root_dir, 'dvntn9yhd2-1.zip')
+        self.dataset_extracted_dir = os.path.join(self.root_dir, 'dvntn9yhd2-1')
+        self.organized_images_dir = os.path.join(self.root_dir, 'CPN-Dataset')
+
+    def download_dataset(self):
+        if not os.path.exists(self.root_dir):
+            os.makedirs(self.root_dir)
+
+        if not os.path.exists(self.dataset_zip_path):
+            print(f"Downloading dataset from {self.dataset_url}...")
+            with requests.get(self.dataset_url, stream=True) as r:
+                r.raise_for_status()
+                with open(self.dataset_zip_path, 'wb') as f:
+                    for chunk in r.iter_content(chunk_size=8192):
+                        f.write(chunk)
+            print("Download complete.")
+
+    def extract_dataset(self):
+        if not os.path.exists(self.dataset_extracted_dir):
+            print("Extracting main dataset...")
+            with ZipFile(self.dataset_zip_path, 'r') as zip_ref:
+                zip_ref.extractall(self.root_dir)
+            print("Main extraction complete.")
+
+    def extract_inner_dataset(self):
+        inner_zip_path = os.path.join(self.dataset_extracted_dir,
+                                      'Covid19-Pneumonia-Normal Chest X-Ray Images Dataset.zip')
+        if not os.path.exists(self.organized_images_dir):
+            os.makedirs(self.organized_images_dir)
+            print("Extracting inner dataset...")
+            with ZipFile(inner_zip_path, 'r') as zip_ref:
+                zip_ref.extractall(self.organized_images_dir)
+            print("Inner extraction complete.")
+
+    def get_dataset(self):
+        if os.path.exists(self.organized_images_dir):
+            print("Dataset already exists. Returning the root directory.")
+            return self.organized_images_dir
+        else:
+            self.download_dataset()
+            self.extract_dataset()
+            self.extract_inner_dataset()
+            return self.organized_images_dir
