@@ -291,6 +291,7 @@ class CPNDatasetDownloader:
             self.extract_inner_dataset()
             return self.organized_images_dir
 
+<<<<<<< HEAD
 
 class KvasirDatasetDownloader:
     def __init__(self, root_dir='data', dataset_url='https://datasets.simula.no/downloads/kvasir/kvasir-dataset.zip'):
@@ -327,3 +328,83 @@ class KvasirDatasetDownloader:
             self.download_dataset()
             self.extract_dataset()
             return self.dataset_dir
+=======
+def build_dataset(args):
+    train_transform, test_transform = build_transform(args)
+    #data_dir = args.dataset_dir
+    
+    
+    if args.dataset == 'Kvasir':
+        # Define the sizes for the splits
+        train_size = 2408
+        val_size = 392
+        test_size = 1200
+        nb_classes = 8
+        downloader = KvasirDatasetDownloader()
+        data_dir = downloader.get_dataset()
+        print(f"Dataset is available at: {data_dir}")  
+    elif args.dataset == 'CPN':
+        # Define the sizes for the splits
+        train_size = 3140
+        val_size = 521
+        test_size = 1567
+        nb_classes = 3
+        downloader = CPNDatasetDownloader()
+        data_dir = downloader.get_dataset()
+        print(f"Dataset is available at: {data_dir}")
+    elif args.dataset == 'Fetal':
+        # Define the sizes for the splits
+        train_size = 7446
+        val_size = 1237
+        test_size = 3717
+        nb_classes = 6
+        downloader = FetalDatasetDownloader()
+        data_dir = downloader.get_dataset()
+        print(f"Dataset is available at: {data_dir}")
+    elif args.dataset == 'PAD':
+        # Define the sizes of each split
+        train_size = 1384
+        val_size = 227
+        test_size = 687
+        nb_classes = 6
+        downloader = PADatasetDownloader()
+        data_dir = downloader.get_dataset()
+        print(f"Dataset is available at: {data_dir}")
+    elif args.dataset == 'ISIC2018':
+        nb_classes = 7
+        manager = ISICDatasetManager()
+        train_path, test_path = manager.setup_dataset()
+        print(f"Dataset is available at: {train_path}")
+        train_dataset = datasets.ImageFolder(root=train_path, transform=train_transform) 
+        test_dataset = datasets.ImageFolder(root=test_path, transform=test_transform) 
+        return train_dataset, test_dataset, nb_classes
+    elif args.dataset.endswith('mnist'):
+        info = INFO[args.dataset]
+        task = info['task']
+        n_channels = info['n_channels']
+        nb_classes = len(info['label'])
+        DataClass = getattr(medmnist, info['python_class'])
+        print("Number of channels: ", n_channels)
+        print("Number of classes: ", nb_classes)
+        train_dataset = DataClass(split='train', transform=train_transform, download=True, as_rgb=True, root='./data', size=224, mmap_mode='r')
+        test_dataset = DataClass(split='test', transform=test_transform, download=True, as_rgb=True, root='./data', size=224, mmap_mode='r')
+        return train_dataset, test_dataset, nb_classes
+    else:
+        raise NotImplementedError()
+    
+    full_dataset = datasets.ImageFolder(root=data_dir)  # Load without transform
+    # Verify the total number of images matches the sum of the splits
+    assert train_size + val_size + test_size == len(full_dataset), "The sum of the splits must equal the total number of images"
+
+    # Split the dataset
+    train_dataset, val_dataset, test_dataset = random_split(full_dataset, [train_size, val_size, test_size])
+
+    # Apply the transformations
+    train_dataset = Subset(datasets.ImageFolder(root=data_dir, transform=train_transform), train_dataset.indices)
+    val_dataset = Subset(datasets.ImageFolder(root=data_dir, transform=test_transform), val_dataset.indices)
+    test_dataset = Subset(datasets.ImageFolder(root=data_dir, transform=test_transform), test_dataset.indices)
+
+    print("Number of the class = %d" % nb_classes)
+
+    return train_dataset, test_dataset, nb_classes
+>>>>>>> 365f846 (Update datasets.py)
