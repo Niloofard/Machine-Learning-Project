@@ -44,7 +44,7 @@ def specificity_per_class(conf_matrix):
         fp = conf_matrix[:, i].sum() - conf_matrix[i, i]
         specificity.append(tn / (tn + fp))
     return specificity
-def overall_accuracy(conf_matrix):
+def overall_accuracy(conf_matrix)
     """Calculates overall accuracy for multi-class."""
     tp_tn_sum = conf_matrix.trace()  # Sum of all diagonal elements (TP for all classes)
     total_sum = conf_matrix.sum()  # Sum of all elements in the matrix
