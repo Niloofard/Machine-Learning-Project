@@ -408,3 +408,20 @@ def build_dataset(args):
 
     return train_dataset, test_dataset, nb_classes
 >>>>>>> 365f846 (Update datasets.py)
+
+def build_transform(args):
+    t_train = []
+    # this should always dispatch to transforms_imagenet_train
+    t_train.append(transforms.RandomResizedCrop(224))
+    t_train.append(transforms.AugMix(alpha=0.4))
+    # t_train.append(transforms.Lambda(lambda image: image.convert('RGB')))
+    t_train.append(transforms.RandomHorizontalFlip(p=0.4))
+    t_train.append(transforms.ToTensor())
+    t_train.append(transforms.Normalize(mean=[.5], std=[.5]))
+
+    t_test = []
+    t_test.append(transforms.Resize((224, 224)))
+    # t_test.append(transforms.Lambda(lambda image: image.convert('RGB')))
+    t_test.append(transforms.ToTensor())
+    t_test.append(transforms.Normalize(mean=[.5], std=[.5]))
+    return transforms.Compose(t_train), transforms.Compose(t_test)
