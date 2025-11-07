@@ -34,3 +34,13 @@ def download_checkpoint(url, path):
             for chunk in r.iter_content(chunk_size=8192):
                         f.write(chunk)
     print(f"Checkpoint downloaded and saved to {path}")
+
+# Define the non-MNIST training routine
+def specificity_per_class(conf_matrix):
+    """Calculates specificity for each class."""
+    specificity = []
+    for i in range(len(conf_matrix)):
+        tn = conf_matrix.sum() - (conf_matrix[i, :].sum() + conf_matrix[:, i].sum() - conf_matrix[i, i])
+        fp = conf_matrix[:, i].sum() - conf_matrix[i, i]
+        specificity.append(tn / (tn + fp))
+    return specificity
