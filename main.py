@@ -210,3 +210,80 @@ def train_other(epochs, net, train_loader, test_loader, optimizer, scheduler, lo
             torch.save(state, save_path)
 
     print('Finished Training')
+
+
+def main(args):
+    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    print("Using {} device.".format(device))
+    model_name = args.model_name
+    dataset_name = args.dataset
+    pretrained = args.pretrained
+    if args.dataset.endswith('mnist'):
+        info = INFO[args.dataset]
+        task = info['task']
+        if task == "multi-label, binary-class":
+            loss_function = nn.BCEWithLogitsLoss()
+        else:
+            loss_function = nn.CrossEntropyLoss()
+    else:
+        loss_function = nn.CrossEntropyLoss()
+    model_class = model_classes.get(model_name)
+
+    # if not model_class:
+    #     raise ValueError(f"Model {model_name} is not recognized. Available models: {list(model_classes.keys())}")
+
+    batch_size = args.batch_size
+    lr = args.lr
+
+    train_dataset, test_dataset, nb_classes = build_dataset(args=args)
+    val_num = len(test_dataset)
+    train_num = len(train_dataset)
+
+    # scheduler max iteration
+    eta = args.epochs * train_num // args.batch_size
+
+    # Select model
+    if model_name in model_classes:
+        model_class = model_classes[model_name]
+        net = model_class(num_classes=nb_classes).cuda()
+        if pretrained:
+            checkpoint_path = args.checkpoint_path
+            if not os.path.exists(checkpoint_path):
+                checkpoint_url = model_urls.get(model_name)
+                if not checkpoint_url:
+                    raise ValueError(f"Checkpoint URL for model {model_name} not found.")
+                download_checkpoint(checkpoint_url, f'./{model_name}.pth')
+                checkpoint_path = f'./{model_name}.pth'
+
+            checkpoint = torch.load(checkpoint_path)
+            state_dict = net.state_dict()
+            for k in ['proj_head.0.weight', 'proj_head.0.bias']:
+                if k in checkpoint and checkpoint[k].shape != state_dict[k].shape:
+                    print(f"Removing key {k} from pretrained checkpoint")
+                    del checkpoint[k]
+            net.load_state_dict(checkpoint, strict=False)
+    else:
+        net = timm.create_model(model_name, pretrained=pretrained, num_classes=nb_classes).cuda()
+
+    optimizer = optim.AdamW(net.parameters(), lr=lr, betas=[0.9, 0.999], weight_decay=0.05)
+    scheduler = optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=eta, eta_min=5e-6)
+
+    train_loader = data.DataLoader(dataset=train_dataset, batch_size=batch_size, shuffle=True)
+    test_loader = data.DataLoader(dataset=test_dataset, batch_size=2 * batch_size, shuffle=False)
+
+    print(train_dataset)
+    print("===================")
+    print(test_dataset)
+
+    epochs = args.epochs
+    best_acc = 0.0
+    save_path = f'./{model_name}_{dataset_name}.pth'
+    train_steps = len(train_loader)
+
+    if dataset_name.endswith('mnist'):
+
+        train_mnist(epochs, net, train_loader, test_loader,
+                    optimizer, scheduler, loss_function, device, save_path, dataset_name, task)
+    else:
+        train_other(epochs, net, train_loader, test_loader,
+                    optimizer, scheduler, loss_function, device, save_path)
