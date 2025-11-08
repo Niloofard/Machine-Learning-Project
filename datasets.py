@@ -195,7 +195,23 @@ class ISICDatasetManager:
         # Ensure base directory exists
         os.makedirs(self.base_dir, exist_ok=True)
 
-     def organize_by_labels(self, metadata_path, image_dir, output_base_dir):
+    def download_and_extract(self, url, extract_to):
+        local_filename = os.path.join(self.base_dir, url.split('/')[-1])
+        if not os.path.exists(local_filename):
+            print(f"Downloading {url}...")
+            with requests.get(url, stream=True) as r:
+                r.raise_for_status()
+                with open(local_filename, 'wb') as f:
+                    for chunk in r.iter_content(chunk_size=8192):
+                        f.write(chunk)
+            print("Download complete.")
+
+        print(f"Extracting {local_filename}...")
+        with ZipFile(local_filename, 'r') as zip_ref:
+            zip_ref.extractall(extract_to)
+        print("Extraction complete.")
+
+    def organize_by_labels(self, metadata_path, image_dir, output_base_dir):
         metadata = pd.read_csv(metadata_path)
         labels = ['MEL', 'NV', 'BCC', 'AKIEC', 'BKL', 'DF', 'VASC']
         for label in labels:
@@ -209,14 +225,15 @@ class ISICDatasetManager:
                     target_path = os.path.join(output_base_dir, label, image_name)
                     shutil.move(source_path, target_path)
                     break
+
         metadata.apply(move_image, axis=1)
 
     def setup_dataset(self):
-        
+
         # Organize training and test images
         train_categorized = os.path.join(self.train_path, 'Categorized')
         test_categorized = os.path.join(self.test_path, 'Categorized')
-        
+
         if os.path.exists(train_categorized):
             print("Dataset already exists. Returning the root directory.")
             return train_categorized, test_categorized
@@ -227,9 +244,9 @@ class ISICDatasetManager:
             self.download_and_extract(self.train_gt_url, self.train_path)
             self.download_and_extract(self.test_gt_url, self.test_path)
 
-            
             self.organize_by_labels(
-                os.path.join(self.train_path, 'ISIC2018_Task3_Training_GroundTruth/ISIC2018_Task3_Training_GroundTruth.csv'),
+                os.path.join(self.train_path,
+                             'ISIC2018_Task3_Training_GroundTruth/ISIC2018_Task3_Training_GroundTruth.csv'),
                 os.path.join(self.train_path, 'ISIC2018_Task3_Training_Input'),
                 train_categorized
             )
@@ -291,7 +308,6 @@ class CPNDatasetDownloader:
             self.extract_inner_dataset()
             return self.organized_images_dir
 
-<<<<<<< HEAD
 
 class KvasirDatasetDownloader:
     def __init__(self, root_dir='data', dataset_url='https://datasets.simula.no/downloads/kvasir/kvasir-dataset.zip'):
@@ -328,7 +344,6 @@ class KvasirDatasetDownloader:
             self.download_dataset()
             self.extract_dataset()
             return self.dataset_dir
-=======
 def build_dataset(args):
     train_transform, test_transform = build_transform(args)
     #data_dir = args.dataset_dir
@@ -407,7 +422,6 @@ def build_dataset(args):
     print("Number of the class = %d" % nb_classes)
 
     return train_dataset, test_dataset, nb_classes
->>>>>>> 365f846 (Update datasets.py)
 
 def build_transform(args):
     t_train = []
