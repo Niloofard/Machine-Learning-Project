@@ -117,3 +117,96 @@ def overall_accuracy(conf_matrix):
     tp_tn_sum = conf_matrix.trace()  # Sum of all diagonal elements (TP for all classes)
     total_sum = conf_matrix.sum()  # Sum of all elements in the matrix
     return tp_tn_sum / total_sum
+
+
+def train_other(epochs, net, train_loader, test_loader, optimizer, scheduler, loss_function, device, save_path):
+    best_acc = 0.0
+
+    for epoch in range(epochs):
+        net.train()
+        running_loss = 0.0
+        train_bar = tqdm(train_loader, file=sys.stdout)
+
+        # Training Loop
+        for step, datax in enumerate(train_bar):
+            images, labels = datax
+            optimizer.zero_grad()
+            outputs = net(images.to(device))
+            loss = loss_function(outputs, labels.to(device))
+            loss.backward()
+            optimizer.step()
+            scheduler.step()
+            running_loss += loss.item()
+
+            train_bar.desc = f"train epoch[{epoch + 1}/{epochs}] loss:{loss:.3f}"
+
+        # Validation Loop
+        net.eval()
+        all_preds = []
+        all_labels = []
+        all_probs = []  # Store raw probabilities/logits for AUC
+        acc = 0.0
+
+        with torch.no_grad():
+            val_bar = tqdm(test_loader, file=sys.stdout)
+            for val_data in val_bar:
+                val_images, val_labels = val_data
+                outputs = net(val_images.to(device))  # Raw outputs (logits)
+                probs = torch.softmax(outputs, dim=1)  # Convert to probabilities
+
+                predict_y = torch.max(probs, dim=1)[1]  # Predicted class
+
+                # Collect predictions, labels, and probabilities
+                all_preds.extend(predict_y.cpu().numpy())
+                all_labels.extend(val_labels.cpu().numpy())
+                all_probs.extend(probs.cpu().numpy())
+
+                # Calculate accuracy
+                acc += torch.eq(predict_y, val_labels.to(device)).sum().item()
+
+        # Calculate metrics
+        val_accurate = acc / len(test_loader.dataset)
+        precision = precision_score(all_labels, all_preds, average='weighted')
+        recall = recall_score(all_labels, all_preds, average='weighted')  # Sensitivity
+        f1 = f1_score(all_labels, all_preds, average='weighted')
+
+        # Confusion Matrix for multi-class
+        conf_matrix = confusion_matrix(all_labels, all_preds)
+        specificity = specificity_per_class(conf_matrix)  # List of specificities per class
+        avg_specificity = sum(specificity) / len(specificity)  # Average specificity
+
+        # Overall Accuracy calculation
+        overall_acc = overall_accuracy(conf_matrix)
+
+        # One-hot encode the labels for AUC calculation
+        n_classes = len(conf_matrix)
+        all_labels_one_hot = label_binarize(all_labels, classes=list(range(n_classes)))
+
+        try:
+            # Compute AUC for multi-class
+            auc = roc_auc_score(all_labels_one_hot, all_probs, multi_class='ovr')
+        except ValueError:
+            auc = float('nan')  # Handle edge case where AUC can't be computed
+
+        # Print metrics
+        print(f'[epoch {epoch + 1}] train_loss: {running_loss / len(train_loader):.3f} '
+              f'val_accuracy: {val_accurate:.4f} precision: {precision:.4f} '
+              f'recall: {recall:.4f} specificity: {avg_specificity:.4f} '
+              f'f1_score: {f1:.4f} auc: {auc:.4f} overall_accuracy: {overall_acc:.4f}')
+
+        print(f'lr: {scheduler.get_last_lr()[-1]:.8f}')
+
+        # Save best model
+        if val_accurate > best_acc:
+            print('\nSaving checkpoint...')
+            best_acc = val_accurate
+            state = {
+                'model': net.state_dict(),
+                'optimizer': optimizer.state_dict(),
+                'lr_scheduler': scheduler.state_dict(),
+                'acc': best_acc,
+                'epoch': epoch,
+            }
+            torch.save(state, save_path)
+
+    print('Finished Training')
