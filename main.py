@@ -24,6 +24,15 @@ from timm.data.constants import IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD
 import natten
 from sklearn.metrics import precision_score, recall_score, f1_score, roc_auc_score, confusion_matrix
 from sklearn.preprocessing import label_binarize
+from Mamba import Mamaba_tiny, Mamaba_small, Mamaba_base, Mamaba_large
+
+model_classes = {
+    'Mamaba_tiny': Mamaba_tiny,
+    'Mamaba_small': Mamaba_small,
+    'Mamaba_base': Mamaba_base,
+    'Mamaba_large': Mamaba_large
+}
+
 
 def download_checkpoint(url, path):
     print(f"Downloading checkpoint from {url}...")
@@ -287,3 +296,19 @@ def main(args):
     else:
         train_other(epochs, net, train_loader, test_loader,
                     optimizer, scheduler, loss_function, device, save_path)
+                    
+                    
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='Training script for Mamaba models.')
+    parser.add_argument('--model_name', type=str, default='Mamaba_large', help='Model name to use.')
+    #tissuemnist, pathmnist, chestmnist, dermamnist, octmnist, pneumoniamnist, retinamnist, breastmnist, bloodmnist,
+    #organamnist, organcmnist, organsmnist'
+    parser.add_argument('--dataset', type=str, default='PAD', help='Dataset to use.')
+    parser.add_argument('--batch_size', type=int, default=24, help='Batch size for training.')
+    parser.add_argument('--lr', type=float, default=0.0001, help='Learning rate.')
+    parser.add_argument('--epochs', type=int, default=100, help='Number of training epochs.')
+    parser.add_argument('--pretrained', type=lambda x: bool(strtobool(x)), default=False, help="Whether to use pretrained weights (True/False).")
+    parser.add_argument('--checkpoint_path', type=str, default='./checkpoint/Mamaba_large.pth', help='Path to the checkpoint file.')
+
+    args = parser.parse_args()
+    main(args)
