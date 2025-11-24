@@ -24,13 +24,13 @@ from timm.data.constants import IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD
 import natten
 from sklearn.metrics import precision_score, recall_score, f1_score, roc_auc_score, confusion_matrix
 from sklearn.preprocessing import label_binarize
-from Mamba import Mamaba_tiny, Mamaba_small, Mamaba_base, Mamaba_large
+from Mamba import Mamba_tiny, Mamba_small, Mamba_base, Mamba_large
 
 model_classes = {
-    'Mamaba_tiny': Mamaba_tiny,
-    'Mamaba_small': Mamaba_small,
-    'Mamaba_base': Mamaba_base,
-    'Mamaba_large': Mamaba_large
+    'Mamba_tiny': Mamba_tiny,
+    'Mamba_small': Mamba_small,
+    'Mamba_base': Mamba_base,
+    'Mamba_large': Mamba_large
 }
 
 
@@ -299,8 +299,8 @@ def main(args):
                     
                     
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Training script for Mamaba models.')
-    parser.add_argument('--model_name', type=str, default='Mamaba_large', help='Model name to use.')
+    parser = argparse.ArgumentParser(description='Training script for Mamba models.')
+    parser.add_argument('--model_name', type=str, default='Mamba_large', help='Model name to use.')
     #tissuemnist, pathmnist, chestmnist, dermamnist, octmnist, pneumoniamnist, retinamnist, breastmnist, bloodmnist,
     #organamnist, organcmnist, organsmnist'
     parser.add_argument('--dataset', type=str, default='PAD', help='Dataset to use.')
@@ -308,7 +308,7 @@ if __name__ == '__main__':
     parser.add_argument('--lr', type=float, default=0.0001, help='Learning rate.')
     parser.add_argument('--epochs', type=int, default=100, help='Number of training epochs.')
     parser.add_argument('--pretrained', type=lambda x: bool(strtobool(x)), default=False, help="Whether to use pretrained weights (True/False).")
-    parser.add_argument('--checkpoint_path', type=str, default='./checkpoint/Mamaba_large.pth', help='Path to the checkpoint file.')
+    parser.add_argument('--checkpoint_path', type=str, default='./checkpoint/Mamba_large.pth', help='Path to the checkpoint file.')
 
     args = parser.parse_args()
     main(args)
