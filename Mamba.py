@@ -471,7 +471,7 @@ class GFP(nn.Module):
         return x
 
 
-class Mamab(nn.Module):
+class Mamba(nn.Module):
     def __init__(self, stem_chs=[64, 32, 64], depths=[2, 2, 6, 2],
                  dims=[64, 128, 320, 512], path_dropout=0.1, attn_drop=0,
                  drop=0, num_classes=1000,
@@ -571,7 +571,7 @@ class Mamab(nn.Module):
         return x
 
 @register_model
-def Mamaba_tiny(pretrained=False, pretrained_cfg=None, pretrained_cfg_overlay= None, **kwargs):
+def Mamba_tiny(pretrained=False, pretrained_cfg=None, pretrained_cfg_overlay= None, **kwargs):
     model = Mamba(stem_chs=[64, 32, 64],
                    depths=[2, 2, 6, 1],
                    dims=[64, 128, 192, 384],
